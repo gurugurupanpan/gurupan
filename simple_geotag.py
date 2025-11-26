@@ -1,9 +1,15 @@
 """
 HEIC写真の地理情報をKMLファイルに変換するシンプルスクリプト
 Jupyter Notebook不要で、コマンドプロンプトから直接実行できます
+
+使い方:
+  python simple_geotag.py                          # 対話モード
+  python simple_geotag.py C:/写真フォルダ           # フォルダを直接指定
+  python simple_geotag.py C:/写真/IMG_0001.heic    # 単一ファイルをテスト
 """
 
 import os
+import sys
 from pathlib import Path
 
 try:
@@ -231,33 +237,68 @@ def main():
     print("HEIC写真 → Google Earth Pro KML変換ツール")
     print("=" * 60)
 
-    print("\n使い方を選んでください:")
-    print("1. 単一の写真をテスト")
-    print("2. フォルダ内のすべての写真を処理")
+    # コマンドライン引数でパスが指定された場合
+    if len(sys.argv) > 1:
+        path = sys.argv[1]
 
-    choice = input("\n選択 (1 または 2): ").strip()
+        if os.path.isfile(path):
+            # 単一ファイル
+            print("\n単一ファイルモード")
+            test_single_photo(path)
+        elif os.path.isdir(path):
+            # フォルダ
+            print("\nフォルダ処理モード")
+            print(f"フォルダ: {path}\n")
 
-    if choice == "1":
-        # 単一写真のテスト
-        default_path = "C:/Users/gurug/Documents/IMG_0624.heic"
-        photo_path = input(f"\n写真のパス [{default_path}]: ").strip()
+            output_kml = "geotagged_photos.kml"
+            convert_to_jpg = True
+            jpg_folder = "converted_photos"
 
-        if not photo_path:
-            photo_path = default_path
+            print(f"出力KMLファイル: {output_kml}")
+            print(f"JPG変換: はい")
+            print(f"JPG保存先: {jpg_folder}\n")
 
-        test_single_photo(photo_path)
+            create_kml_from_folder(path, output_kml, convert_to_jpg, jpg_folder)
+            print(f"\n✓ {output_kml} を Google Earth Pro で開いてください！")
+        else:
+            print(f"\nエラー: パスが見つかりません: {path}")
+            print("ファイルまたはフォルダのパスを正しく指定してください")
 
-    elif choice == "2":
-        # フォルダ処理
-        folder_path = input("\n写真フォルダのパス: ").strip()
+        print("\n")
+        input("Enterキーを押して終了...")
+        return
 
-        if not folder_path:
-            print("エラー: フォルダパスを入力してください")
-            return
+    # 対話モード
+    print("\n📁 写真ファイルまたはフォルダのパスを入力してください")
+    print("   例: C:/Users/gurug/Documents/IMG_0624.heic")
+    print("   例: C:/Users/gurug/Documents/photo")
+    print("   (何も入力せずEnterでサンプルパスを使用)")
 
-        if not os.path.exists(folder_path):
-            print(f"エラー: フォルダが見つかりません: {folder_path}")
-            return
+    path = input("\nパス: ").strip().strip('"')  # ダブルクォートを削除
+
+    if not path:
+        # デフォルトパス
+        path = "C:/Users/gurug/Documents/IMG_0624.heic"
+        print(f"デフォルトパスを使用: {path}")
+
+    if not os.path.exists(path):
+        print(f"\nエラー: パスが見つかりません: {path}")
+        print("\nパスを確認してください:")
+        print("- Windowsの場合、スラッシュは / または \\\\ を使用")
+        print("- 例: C:/Users/username/Documents")
+        print("- または: C:\\\\Users\\\\username\\\\Documents")
+        print("\n")
+        input("Enterキーを押して終了...")
+        return
+
+    if os.path.isfile(path):
+        # 単一ファイル
+        print("\n📸 単一ファイルをテストします\n")
+        test_single_photo(path)
+
+    elif os.path.isdir(path):
+        # フォルダ
+        print("\n📁 フォルダ内のすべてのHEIC写真を処理します\n")
 
         output_kml = input("出力KMLファイル名 [geotagged_photos.kml]: ").strip()
         if not output_kml:
@@ -272,12 +313,8 @@ def main():
             if not jpg_folder:
                 jpg_folder = "converted_photos"
 
-        create_kml_from_folder(folder_path, output_kml, convert_to_jpg, jpg_folder)
-
+        create_kml_from_folder(path, output_kml, convert_to_jpg, jpg_folder)
         print(f"\n✓ {output_kml} を Google Earth Pro で開いてください！")
-
-    else:
-        print("無効な選択です")
 
     print("\n")
     input("Enterキーを押して終了...")
