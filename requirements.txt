@@ -1,0 +1,15 @@
+# Google Earth Pro用地理情報付き写真アップロードツール
+# 必要なPythonパッケージ
+
+# HEICフォーマットのサポート
+pillow-heif>=0.13.0
+
+# 画像処理とEXIFデータ抽出
+Pillow>=10.0.0
+
+# KMLファイル生成
+simplekml>=1.3.6
+
+# Jupyter Notebook (開発環境)
+notebook>=7.0.0
+ipykernel>=6.25.0
