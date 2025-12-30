@@ -7,15 +7,6 @@ edition = "2021"
 kamadak-exif = "0.5"
 walkdir = "2.4"
 
-[target.'cfg(windows)'.dependencies]
-windows = { version = "0.58", features = [
-    "Win32_UI_Shell",
-    "Win32_UI_Shell_Common",
-    "Win32_System_Com",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_Foundation"
-]}
-
 [profile.release]
 strip = true
 lto = true
