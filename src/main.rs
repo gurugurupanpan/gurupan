@@ -72,7 +72,13 @@ fn extract_gps(path: &Path) -> Option<String> {
     let lon = get_coord(&exif, Tag::GPSLongitude, Tag::GPSLongitudeRef)?;
     let name = path.file_name()?.to_string_lossy();
 
-    Some(format!("{},{:.6},{:.6}", name, lat, lon))
+    // 撮影日を取得
+    let date = exif
+        .get_field(Tag::DateTimeOriginal, In::PRIMARY)
+        .map(|f| f.display_value().to_string())
+        .unwrap_or_default();
+
+    Some(format!("{},{:.6},{:.6},{}", name, lat, lon, date))
 }
 
 fn get_coord(exif: &exif::Exif, tag: Tag, ref_tag: Tag) -> Option<f64> {
